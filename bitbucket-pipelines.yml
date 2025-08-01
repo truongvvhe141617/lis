@@ -1,0 +1,134 @@
+#  Template npm-publish
+
+#  This template allows you to publish your npm package, as defined in package.json, to npmjs.com or any other npm-like registry.
+#  The workflow allows running tests, code linting and security scans on feature branches (as well as master).
+#  The npm package will be validated and published after the code is merged to master.
+
+# Prerequisites: $NPM_TOKEN setup in the Deployment variables.
+# For advanced cases, please, follow examples from the pipe's README https://bitbucket.org/atlassian/npm-publish/src/master/README.md
+
+image: node:16.19-alpine
+
+definitions:
+  services:
+    docker:
+      memory: 8192
+  steps:
+    - step: &build-test
+        size: 8x
+        name: Build develop
+        caches:
+          - node
+        script:
+          - cp -f TZ /etc/localtime
+          - apk -U upgrade
+          - cp -f TZ /etc/localtime
+          - apk add --no-cache git openssh
+          - git config --global url."https://github.com/".insteadOf git://github.com/
+          - git config --global url."https://github.com/".insteadOf ssh://git@github.com/
+          - git config --global url."https://github.com/".insteadOf git+ssh://git@github.com/
+          - git config --global url."https://".insteadOf git://
+          #- COPY package.json package.json
+          #- COPY yarn.lock yarn.lock
+          - npm install npm@8.3.1 --location=global
+          #- rm -rf package-lock.json
+          #- npm cache clean --force
+          #- npm cache verify
+          #- npm config set package-lock false
+          #- npm install --legacy-peer-deps --loglevel=error
+          - yarn install --ignore-engines
+          - cp .env.development .env.production
+          - NODE_OPTIONS="--max-old-space-size=8192" npm run build
+        artifacts:
+          - build/**
+    - step: &deploy
+        name: Build & Deploy develop
+        deployment: test
+        image: instrumentisto/rsync-ssh
+        script:
+          - cd build/
+          - cp index.html 404.html
+          - rsync -avzh --delete -e ssh . $SSH_DEPLOY_USER@$SSH_DEPLOY_IP:$SSH_DEPLOY_DIR
+    - step: &build-test-uat
+        size: 8x
+        name: Build UAT
+        services:
+          - docker
+        caches:
+          - docker
+        script:
+          - cp .env.uat .env.staging
+          - echo ${DOCKERHUB_PASSWORD} | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
+          - docker build . --tag test/test:webapp-uat
+          - docker push test/test:webapp-uat
+
+    - step: &build-test-sta
+        size: 8x
+        name: Build and Test STA
+        services:
+          - docker
+        caches:
+          - docker
+        script:
+          #- cp .env.staging .env.staging
+          - echo ${DOCKERHUB_PASSWORD} | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
+          - docker build . --build-arg NODE_OPTIONS="--max-old-space-size=8192" --tag test/test:webapp-sta
+          - docker push test/test:webapp-sta
+
+    - step: &build-test-prod-sun
+        size: 8x
+        name: Build and Test PROD SUN
+        services:
+          - docker
+        caches:
+          - docker
+        script:
+          - cp .env.sun .env.staging
+          - echo ${DOCKERHUB_PASSWORD} | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
+          - docker build . --tag test/test:webapp-sun
+          - docker push test/test:webapp-sun
+
+    - step: &deploy-uat
+        name: Deploy UAT
+        image: alpine:3
+        deployment: staging
+        script:
+          - cp .env.uat .env.staging
+          - apk add --update --no-cache openssh
+          - ssh $SSH_DEPLOY_USER@$SSH_DEPLOY_IP "cd $SSH_DEPLOY_DIR; docker-compose -f docker-compose.stack.yml pull webapp"
+          - ssh $SSH_DEPLOY_USER@$SSH_DEPLOY_IP "cd $SSH_DEPLOY_DIR; docker-compose -f docker-compose.stack.yml up -d"
+    
+options:
+  docker: true
+  size: 8x
+
+pipelines:
+  branches:
+    sun/v*:
+      - step: *build-test-prod-sun
+      #- step:
+          #<<: *deploy
+          #deployment: production
+          #trigger: manual
+  custom:
+
+    1Deploy-DEV-IOLIS:
+      - step: *build-test
+      - step:
+          <<: *deploy
+
+    #3Build-STA-IOLIS:
+    #  - step:
+    #      #runs-on: self.hosted
+    #      <<: *build-test-sta
+
+    #3Build-STA-SUN:
+    2Build-STAGING-IOLIS-SUN:
+      - step:
+          #runs-on: self.hosted
+          <<: *build-test-sta
+
+    3Build-PRODUCTION-SUN:
+      - step:
+          #runs-on: self.hosted
+          <<: *build-test-prod-sun
