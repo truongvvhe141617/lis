@@ -31,7 +31,7 @@ check_vars:
 checkout: check_vars
 	@echo ">> Pulling [${GIT_BRANCH_NAME}] from SCM" 
 	git checkout ${GIT_BRANCH_NAME}
-	git pull 
+#	git pull 
 
 build: checkout webapp.env.${ENV_TARGET}
 	@echo ">> Create [.env] file"
