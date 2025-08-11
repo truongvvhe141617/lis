@@ -70,7 +70,6 @@ definitions:
         caches:
           - docker
         script:
-          #- cp .env.staging .env.staging
           - echo ${DOCKERHUB_PASSWORD} | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
           - docker build . --build-arg NODE_OPTIONS="--max-old-space-size=8192" --tag test/test:webapp-sta
           - docker push test/test:webapp-sta
@@ -106,10 +105,6 @@ pipelines:
   branches:
     sun/v*:
       - step: *build-test-prod-sun
-      #- step:
-          #<<: *deploy
-          #deployment: production
-          #trigger: manual
   custom:
 
     1Deploy-DEV-IOLIS:
@@ -117,18 +112,10 @@ pipelines:
       - step:
           <<: *deploy
 
-    #3Build-STA-IOLIS:
-    #  - step:
-    #      #runs-on: self.hosted
-    #      <<: *build-test-sta
-
-    #3Build-STA-SUN:
     2Build-STAGING-IOLIS-SUN:
       - step:
-          #runs-on: self.hosted
           <<: *build-test-sta
 
     3Build-PRODUCTION-SUN:
       - step:
-          #runs-on: self.hosted
           <<: *build-test-prod-sun
