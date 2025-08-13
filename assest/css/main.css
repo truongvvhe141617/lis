@@ -26,8 +26,16 @@
     text-decoration: none;
 }
 
+.header__navbar-item,
+.header__navbar-item-link ,
+.header__navbar--icon-link {
+    display: inline-block /* Ensure items are inline */;
+    align-items: center;
+}
+
 .header__navbar-item:hover,
-.header__navbar-item-link:hover {
+.header__navbar-item-link:hover,
+.header__navbar--icon-link:hover {
     cursor: pointer;
     color: rgba(255, 255, 255, 0.7);
 }
@@ -50,4 +58,14 @@
 .header__navbar--icon-link {
     color: var(--white-color);
     text-decoration: none;
+}
+
+.header__navbar-icon {
+    font-size: 1.8rem;
+    margin: 0 4px;
+}
+
+.header__navbar-item-title--no-pointer {
+    cursor: text; /* Prevent pointer cursor for this item */
+    color: var(--white-color);
 }
