@@ -16,7 +16,7 @@ html {
 }
 
 .grid {
-    width: 1200px   /* 1200px is the max width of the grid container */;
+    width: 1400px   /* 1400px is the max width of the grid container */;
     max-width: 100%;
     margin: 0 auto  /* Center the grid container */;
 }
