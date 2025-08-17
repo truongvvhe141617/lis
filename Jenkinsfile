@@ -4,7 +4,6 @@ pipeline {
 
   stages {
     // Build & Push image on 127.0.0.2
-
     stage('Build & Push on 127.0.0.2') {
       when { branch 'sgh/release1.9' }
       steps {
@@ -15,7 +14,7 @@ pipeline {
         )]) {
           script {
             def buildSrv = [
-              name: 'build-201', // required
+              name: 'build-201',
               host: '127.0.0.2',
               port: 22,
               user: SSH_USER,
@@ -43,7 +42,7 @@ pipeline {
         )]) {
           script {
             def deploySrv = [
-              name: 'deploy-60-41', // required
+              name: 'deploy-60-41',
               host: '127.0.0.1',
               port: 22,
               user: SSH_USER,
