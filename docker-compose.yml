@@ -1,0 +1,15 @@
+version: "3.9"
+services:
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=iolis
+      - RABBITMQ_DEFAULT_PASS=A0389BB1-6352-4710-AEF8-AEA1010181E7
+      - RABBITMQ_DEFAULT_VHOST=/local
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - ./rabbitmq_data:/var/lib/rabbitmq
+    restart: unless-stopped
