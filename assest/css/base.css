@@ -4,6 +4,7 @@
     --white-color: #fff;
     --black-color: #000;
     --text-color: #333;
+    --border-color: #dbdbdb;
 }
 
 * {
@@ -41,3 +42,38 @@ html {
         opacity: 1;
     }
 }
+
+/* Button base */
+.btn {
+    height: 34px;
+    min-width: 142px;
+    border: none;
+    text-decoration: none;
+    border-radius: 2px;
+    font-size: 1.5rem;
+    font-weight: 400;
+    padding: 0 12px;
+    outline: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    line-height: 1.6rem;
+}
+
+.btn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.btn.btn--primary {
+    background-color: var(--primary-color);
+    color: var(--white-color);
+    transition: background-color 0.2s ease-in-out;
+}
+
+.btn.btn--disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+}
+
