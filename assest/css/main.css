@@ -257,6 +257,7 @@
     right: 0;
     bottom: 0;
     display: flex;
+    animation: fadeIn 0.1s linear;
 }
 
 .modal__overlay {
