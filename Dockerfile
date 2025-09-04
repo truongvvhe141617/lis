@@ -6,9 +6,11 @@ FROM node:18-alpine AS build
 
 WORKDIR /app
 
-COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile
+# Copy package.json trước
+COPY package.json ./
+RUN yarn install
 
+# Copy toàn bộ code
 COPY . .
 
 ARG NODE_OPTIONS=--max-old-space-size=8192
@@ -22,5 +24,6 @@ FROM nginx:stable-alpine
 
 COPY nginx/ /etc/nginx/
 COPY --from=build /app/build /usr/share/nginx/html
+
 
 
