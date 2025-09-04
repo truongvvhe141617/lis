@@ -1,17 +1,20 @@
 # Step 1: Build React app
-FROM truongvv/public:webapp AS build
+#FROM truongvv/public:webapp-base-build AS build
 
-# Nhận biến môi trường khi build
+# Step 1: Build React app
+FROM node:18-alpine AS build
+
+# build args + env
 ARG REACT_ENV=.env.staging
 ARG NODE_OPTIONS=--max-old-space-size=8192
 ENV NODE_OPTIONS=${NODE_OPTIONS}
 
 WORKDIR /app
 
-# Copy package.json và lockfile trước để tận dụng cache
+# Copy package.json trước để cache dependency
 COPY package.json yarn.lock ./
 
-# Cài dependency (dùng yarn để thống nhất)
+# Install dependency
 RUN yarn install --frozen-lockfile
 
 # Copy toàn bộ source code
@@ -21,11 +24,13 @@ COPY . .
 COPY ${REACT_ENV} .env.staging
 COPY ${REACT_ENV} .env.production
 
-# Build app (React/Vite/NextJS đều sẽ ra thư mục build)
-RUN yarn build && cp build/index.html build/404.html
+# Build app
+RUN yarn build
+RUN cp build/index.html build/404.html
 
-# Step 2: Serve bằng Nginx
+# Step 2: Serve với Nginx
 FROM nginx:stable-alpine
 
 COPY nginx/ /etc/nginx/
 COPY --from=build /app/build /usr/share/nginx/html
+
