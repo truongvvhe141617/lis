@@ -12,7 +12,7 @@ ENV NODE_OPTIONS=${NODE_OPTIONS}
 WORKDIR /app
 
 # Copy package.json trước để cache dependency
-#COPY package.json yarn.lock ./
+COPY package.json yarn.lock ./
 
 # Install dependency
 RUN yarn install --frozen-lockfile

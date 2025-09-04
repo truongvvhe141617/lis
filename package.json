@@ -1,0 +1,8 @@
+{
+  "name": "profile",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:truongvvhe141617/lis.git",
+  "author": "truong.vv <truongsocui2k@gmail.com>",
+  "license": "MIT"
+}
