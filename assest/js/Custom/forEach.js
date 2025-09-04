@@ -10,3 +10,8 @@ Array.prototype.customForEach = function(callback) {
         }
     }
 }
+
+const numbers = [1, 2, 3];
+numbers.customForEach((num, idx, arr) => {
+  console.log(`Index ${idx}, Giá trị: ${num}, Mảng: [${arr}]`);
+});
