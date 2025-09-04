@@ -1,29 +1,28 @@
 # Step 1: Build React app
 #FROM truongvv/public:webapp-base-build AS build
 
-# Step 1: Build React app
 FROM node:18-alpine AS build
 
 WORKDIR /app
 
-# Copy package.json trước
-COPY package.json ./
+# Copy package.json và yarn.lock trước
+COPY package.json yarn.lock* ./
+
+# Cài dependencies
 RUN yarn install
 
-# Copy toàn bộ code
+# Copy toàn bộ source code
 COPY . .
 
-ARG NODE_OPTIONS=--max-old-space-size=8192
-ENV NODE_OPTIONS=${NODE_OPTIONS}
-
+# Build React app
 RUN yarn build
 RUN cp build/index.html build/404.html
 
-# Step 2: Serve with Nginx
+# Stage 2: Nginx serve
 FROM nginx:stable-alpine
-
 COPY nginx/ /etc/nginx/
 COPY --from=build /app/build /usr/share/nginx/html
+
 
 
 
